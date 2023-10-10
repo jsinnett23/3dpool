@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Security.Cryptography;
 using TMPro;
 using UnityEditor.VersionControl;
 using UnityEngine;
@@ -28,6 +29,9 @@ public class GameManager : MonoBehaviour
 
     [SerializeField] GameObject restartButton;
     [SerializeField] Transform headPosition;
+    [SerializeField] Camera cueStickCamera;
+    [SerializeField] Camera overHeadCamera;
+    Camera currentCamera;
 
   
 
@@ -36,12 +40,29 @@ public class GameManager : MonoBehaviour
     void Start()
     {
         currentPlayer = CurrentPlayer.Player1;
+        currentCamera = cueStickCamera;
     }
 
     // Update is called once per frame
     void Update()
     {
         
+    }
+
+    public void SwitchCameras()
+    {
+        if (currentCamera == cueStickCamera)
+        {
+            cueStickCamera.enabled = false;
+            overHeadCamera.enabled = true;
+            currentCamera = overHeadCamera;
+        }
+        else
+        {
+            currentCamera.enabled = true;
+            overHeadCamera.enabled= false;
+            currentCamera = cueStickCamera;
+        }
     }
     public void restartTheGame()
     {

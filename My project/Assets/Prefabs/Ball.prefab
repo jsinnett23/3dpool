@@ -43,7 +43,7 @@ MeshFilter:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2844298807384922991}
-  m_Mesh: {fileID: -4750190334999449737, guid: 8235c7a8c9b12134a9875f7db9b75631, type: 3}
+  m_Mesh: {fileID: 2924694064200498012, guid: 8235c7a8c9b12134a9875f7db9b75631, type: 3}
 --- !u!23 &4993851317365085689
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -64,7 +64,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: d72304021e9d8b348975c63121dff13d, type: 2}
+  - {fileID: 2100000, guid: a1ba89997701fe74aaf3f5b4fd95fc20, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -93,7 +93,7 @@ SphereCollider:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2844298807384922991}
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 13400000, guid: c189ed18dc2f9784fad60349ce6c0b10, type: 2}
   m_IncludeLayers:
     serializedVersion: 2
     m_Bits: 0
@@ -115,8 +115,8 @@ Rigidbody:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2844298807384922991}
   serializedVersion: 4
-  m_Mass: 1
-  m_Drag: 5
+  m_Mass: 0.17
+  m_Drag: 0.75
   m_AngularDrag: 0.05
   m_CenterOfMass: {x: 0, y: 0, z: 0}
   m_InertiaTensor: {x: 1, y: 1, z: 1}
@@ -131,9 +131,9 @@ Rigidbody:
   m_ImplicitTensor: 1
   m_UseGravity: 1
   m_IsKinematic: 0
-  m_Interpolate: 0
+  m_Interpolate: 1
   m_Constraints: 0
-  m_CollisionDetection: 0
+  m_CollisionDetection: 2
 --- !u!114 &-7268430013454587106
 MonoBehaviour:
   m_ObjectHideFlags: 0
