@@ -21,6 +21,15 @@ public class GameManager : MonoBehaviour
     bool isWinningShotForPlayer2 = false;
     int player1BallsRemaining = 7;
     int player2BallsRemaining = 7;
+    bool isWaitingForBallMovementToStop = false;
+    bool isGameOver = false;
+    bool willSwapPlayers = false;
+    bool ballPocketed = false;
+
+    [SerializeField] float shotTimer = 3f;
+    private float currentTimer;
+
+
 
     [SerializeField] TextMeshProUGUI player1BallsText;
     [SerializeField] TextMeshProUGUI player2BallsText;
@@ -28,9 +37,12 @@ public class GameManager : MonoBehaviour
     [SerializeField] TextMeshProUGUI messageText;
 
     [SerializeField] GameObject restartButton;
+
     [SerializeField] Transform headPosition;
+
     [SerializeField] Camera cueStickCamera;
-    [SerializeField] Camera overHeadCamera;
+    [SerializeField] Camera overheadCamera;
+    [SerializeField] float movementThreshold;
     Camera currentCamera;
 
   
@@ -41,27 +53,63 @@ public class GameManager : MonoBehaviour
     {
         currentPlayer = CurrentPlayer.Player1;
         currentCamera = cueStickCamera;
+        currentTimer = shotTimer;
     }
 
     // Update is called once per frame
     void Update()
     {
-        
-    }
+        if (isWaitingForBallMovementToStop && !isGameOver)
+        {
+
+            currentTimer -= Time.deltaTime;
+            if (currentTimer > 0)
+            {
+                return;
+            }
+
+            bool allStopped = true;
+            foreach (GameObject ball in GameObject.FindGameObjectsWithTag("Ball"))
+            {
+                if (ball.GetComponent<Rigidbody>().velocity.magnitude >= movementThreshold )
+                {
+                    allStopped = false;
+                    break;
+                }
+            }
+                if (allStopped)
+                {
+                    isWaitingForBallMovementToStop = false;
+                    if(willSwapPlayers || !ballPocketed) {
+                        
+                            NextPlayerTurn();
+                        }
+                    else {
+                            SwitchCameras();
+                        }
+                currentTimer = shotTimer;
+                ballPocketed = false;
+                }
+            }
+        }
+    
 
     public void SwitchCameras()
     {
         if (currentCamera == cueStickCamera)
         {
             cueStickCamera.enabled = false;
-            overHeadCamera.enabled = true;
-            currentCamera = overHeadCamera;
+            overheadCamera.enabled = true;
+            currentCamera = overheadCamera;
+            isWaitingForBallMovementToStop = true;
+
         }
         else
         {
-            currentCamera.enabled = true;
-            overHeadCamera.enabled= false;
+            cueStickCamera.enabled = true;
+            overheadCamera.enabled= false;
             currentCamera = cueStickCamera;
+            currentCamera.gameObject.GetComponent<CameraController>().ResetCamera();
         }
     }
     public void restartTheGame()
@@ -73,20 +121,22 @@ public class GameManager : MonoBehaviour
 
         if (currentPlayer == CurrentPlayer.Player1) 
         {
-            if(!isWinningShotForPlayer1)
+            if(isWinningShotForPlayer1)
             {
                 ScratchOnWinningShot("Player 1");
                 return true;
             }
             else
             {
-                if(!isWinningShotForPlayer2)
+                if(isWinningShotForPlayer2)
                 {
                     ScratchOnWinningShot("Player 2");
                     return true;
                 }
             }
         }
+        //NextPlayerTurn();
+        willSwapPlayers = true;
         return false;
     }
 
@@ -108,17 +158,7 @@ public class GameManager : MonoBehaviour
         Lose(player + " scratched on the final shot and lost!");
     }
 
-    void NoMoreBalls(CurrentPlayer player)
-    {
-        if (player == CurrentPlayer.Player1)
-        {
-            isWinningShotForPlayer1 = true;
-        }
-        else
-        {
-            isWinningShotForPlayer2 = true;
-        }
-    }
+
 
     bool CheckBall(Ball ball)
     {
@@ -165,9 +205,10 @@ public class GameManager : MonoBehaviour
                 {
                     isWinningShotForPlayer1 = true;
                 }
+             
                 if (currentPlayer != CurrentPlayer.Player1)
                 {
-                    NextPlayerTurn();
+                    willSwapPlayers = true;
                 }
             }
             else
@@ -179,10 +220,11 @@ public class GameManager : MonoBehaviour
                 {
                     isWinningShotForPlayer2 = true;
                 }
-                if(currentPlayer != CurrentPlayer.Player2)
+                if (currentPlayer != CurrentPlayer.Player2)
                 {
-                    NextPlayerTurn();
+                    willSwapPlayers = true;
                 }
+
             }
         }
 
@@ -190,6 +232,7 @@ public class GameManager : MonoBehaviour
     }
     void Lose(string message)
     {
+        isGameOver = true;
         messageText.gameObject.SetActive(true);
         messageText.text = message;
         restartButton.SetActive(true);
@@ -197,6 +240,7 @@ public class GameManager : MonoBehaviour
 
     void Win(string player)
     {
+        isGameOver = true;
         messageText.gameObject.SetActive(true);
         messageText.text = player + " has won!";
         restartButton.SetActive(true);
@@ -214,12 +258,15 @@ public class GameManager : MonoBehaviour
             currentPlayer = CurrentPlayer.Player1;
             currentTurnText.text = "Current Turn: Player 1";
         }
+        willSwapPlayers = false;
+        SwitchCameras();
     }
 
     private void OnTriggerEnter(Collider other)
     {
         if (other.gameObject.tag == "Ball")
         {
+            ballPocketed = true;
             if (CheckBall(other.gameObject.GetComponent<Ball>()))
             {
                 Destroy(other.gameObject);
